@@ -1,0 +1,48 @@
+G:\Projects\DBFrameWork\Test\bin\Debug\Test.exe
+G:\Projects\DBFrameWork\Test\bin\Debug\Test.pdb
+G:\Projects\DBFrameWork\Test\bin\Debug\CodeGenerator.exe
+G:\Projects\DBFrameWork\Test\bin\Debug\CodeGenerator.pdb
+G:\Projects\DBFrameWork\Test\obj\x86\Debug\ResolveAssemblyReference.cache
+G:\Projects\DBFrameWork\Test\obj\x86\Debug\Test.Form1.resources
+G:\Projects\DBFrameWork\Test\obj\x86\Debug\Test.Properties.Resources.resources
+G:\Projects\DBFrameWork\Test\obj\x86\Debug\GenerateResource.read.1.tlog
+G:\Projects\DBFrameWork\Test\obj\x86\Debug\GenerateResource.write.1.tlog
+G:\Projects\DBFrameWork\Test\obj\x86\Debug\Test.exe
+G:\Projects\DBFrameWork\Test\obj\x86\Debug\Test.pdb
+C:\DBFrameWork\DBFrameWork\Test\obj\x86\Debug\Test.exe
+C:\DBFrameWork\DBFrameWork\Test\obj\x86\Debug\Test.pdb
+C:\DBFrameWork\DBFrameWork\Test\bin\Debug\Test.exe
+C:\DBFrameWork\DBFrameWork\Test\bin\Debug\Test.pdb
+C:\DBFrameWork\DBFrameWork\Test\bin\Debug\CodeGenerator.exe
+C:\DBFrameWork\DBFrameWork\Test\bin\Debug\CodeGenerator.pdb
+C:\DBFrameWork\DBFrameWork\Test\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\DBFrameWork\DBFrameWork\Test\obj\x86\Debug\Test.Form1.resources
+C:\DBFrameWork\DBFrameWork\Test\obj\x86\Debug\Test.Properties.Resources.resources
+C:\DBFrameWork\DBFrameWork\Test\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\DBFrameWork\DBFrameWork\Test\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.Form1.resources
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.Properties.Resources.resources
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.exe
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.pdb
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\Test.exe
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\Test.pdb
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\CodeGenerator.exe
+C:\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\CodeGenerator.pdb
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.exe
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.pdb
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\Test.exe
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\Test.pdb
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\CodeGenerator.exe
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\CodeGenerator.pdb
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.csprojResolveAssemblyReference.cache
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.Form1.resources
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.Properties.Resources.resources
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.csproj.GenerateResource.Cache
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\Test.exe.config
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\Test.exe.manifest
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\bin\Debug\Test.application
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.exe.manifest
+C:\Windows\Van\Computer Projects\Projects\MyFrameWork\Tuyen Version\DBFrameWork\Test\obj\x86\Debug\Test.application
