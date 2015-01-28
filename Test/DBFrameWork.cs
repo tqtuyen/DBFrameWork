@@ -369,6 +369,303 @@ namespace DBGenerator
 		#endregion
 
 	}
+	public class Person : TableClassBase
+	{
+		public static string TableName = "Person";
+		#region Where
+		private PersonWhereObject _whereObject = null;
+		public PersonWhereObject Where
+		{
+			get
+			{
+				if (_whereObject == null)
+				{
+					_whereObject = new PersonWhereObject(this);
+				}
+				return _whereObject;
+			}
+		}
+		#endregion
+
+		#region Update
+		private PersonUpdateObject _updateObject = null;
+		public PersonUpdateObject Update
+		{
+			get
+			{
+				if (_updateObject == null)
+				{
+					_updateObject = new PersonUpdateObject(Where);
+				}
+				return _updateObject;
+			}
+		}
+		#endregion
+
+		#region Properties
+		public object PersonName { get; set; }
+		public object PersonAddress { get; set; }
+		#endregion
+
+		public static class Fields
+		{
+			public const string PersonName = "PersonName";
+			public const string PersonAddress = "PersonAddress";
+		}
+		public static string[] FieldList = {Fields.PersonName, Fields.PersonAddress};
+
+		#region Methods
+		public void Insert() { DBAdapter.Insert(this); }
+		public void UpdateEx() { DBAdapter.Update(this); }
+		public void Delete() { DBAdapter.Delete(this); }
+		public DataSet Select() { return DBAdapter.Select(this); }
+		#endregion
+
+		#region Where Object
+		public class PersonWhereObject : WhereObjectBase
+		{
+			public PersonWhereObject(Person parent) : base(parent) { }
+
+			private PersonNameObject _PersonName = null;
+			public PersonNameObject PersonName
+			{
+				get
+				{
+					if (_PersonName == null)
+					{
+						_PersonName = new PersonNameObject(this);
+					}
+					return _PersonName;
+				}
+			}
+
+			private PersonAddressObject _PersonAddress = null;
+			public PersonAddressObject PersonAddress
+			{
+				get
+				{
+					if (_PersonAddress == null)
+					{
+						_PersonAddress = new PersonAddressObject(this);
+					}
+					return _PersonAddress;
+				}
+			}
+
+			#region Each field object
+			public class PersonNameObject : FieldObjectBase
+			{
+				PersonOperatorObject _operator = null;
+
+				public readonly PersonWhereObject Parent = null;
+				protected PersonNameObject() { }
+				public PersonNameObject(PersonWhereObject parent): base("PersonName") 
+				{
+					this.Parent = parent;
+					this._operator = new PersonOperatorObject(this.Parent);
+				}
+				public CustomerOperatorObject Equal(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = "=";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject LessThan(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = "<";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject LessThanEqual(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = "<=";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject GreaterThan(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = ">";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject GreaterThanEqual(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = ">=";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject Like(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = "LIKE";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+			}
+
+			public class PersonAddressObject : FieldObjectBase
+			{
+				PersonOperatorObject _operator = null;
+
+				public readonly PersonWhereObject Parent = null;
+				protected PersonAddressObject() { }
+				public PersonAddressObject(PersonWhereObject parent): base("PersonAddress") 
+				{
+					this.Parent = parent;
+					this._operator = new PersonOperatorObject(this.Parent);
+				}
+				public CustomerOperatorObject Equal(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = "=";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject LessThan(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = "<";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject LessThanEqual(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = "<=";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject GreaterThan(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = ">";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject GreaterThanEqual(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = ">=";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+
+				public CustomerOperatorObject Like(Object value)
+				{
+					FieldValue = value;
+					CurrentOperator = "LIKE";
+					this.Parent.Parent.LastWhere = ToQueryString();
+					return _operator;
+				}
+			}
+
+			#endregion
+		}
+		#endregion
+
+		#region Update Command Object
+		public class PersonUpdateObject
+		{
+			public readonly PersonWhereObject _whereObject = null;
+			protected PersonUpdateObject() {}
+			public PersonUpdateObject(PersonWhereObject whereObj) { this._whereObject = whereObj; }
+
+			public PersonWhereObject Where
+			{
+				get { return this._whereObject; }
+			}
+		}
+		#endregion
+
+		#region Insert Command Object
+		public class PersonInsertObject
+		{
+			public readonly PersonWhereObject _whereObject = null;
+			protected PersonInsertObject() {}
+			public PersonInsertObject(PersonWhereObject whereObj) { this._whereObject = whereObj; }
+
+			public PersonWhereObject Where
+			{
+				get { return this._whereObject; }
+			}
+		}
+		#endregion
+
+		#region Delete Command Object
+		public class PersonDeleteObject
+		{
+			public readonly PersonWhereObject _whereObject = null;
+			protected PersonDeleteObject() {}
+			public PersonDeleteObject(PersonWhereObject whereObj) { this._whereObject = whereObj; }
+
+			public PersonWhereObject Where
+			{
+				get { return this._whereObject; }
+			}
+		}
+		#endregion
+
+		#region Select Command Object
+		public class PersonSelectObject
+		{
+			public readonly PersonWhereObject _whereObject = null;
+			protected PersonSelectObject() {}
+			public PersonSelectObject(PersonWhereObject whereObj) { this._whereObject = whereObj; }
+
+			public PersonWhereObject Where
+			{
+				get { return this._whereObject; }
+			}
+		}
+		#endregion
+
+		#region Operator Object
+		public class PersonOperatorObject
+		{
+			private PersonWhereObject _whereObject = null;
+			protected PersonOperatorObject() {}
+			public PersonOperatorObject(PersonWhereObject whereObj) { this._whereObject = whereObj; }
+
+			public PersonWhereObject Where
+			{
+				get { return this._whereObject; }
+			}
+
+			public PersonWhereObject Or
+			{
+				get
+				{
+					this._whereObject.Parent.LastWhere = " OR ";
+					return this._whereObject;
+				}
+			}
+
+			public PersonWhereObject And
+			{
+				get
+				{
+					this._whereObject.Parent.LastWhere = " AND ";
+					return this._whereObject;
+				}
+			}
+		}
+		#endregion
+
+	}
 
     #region DBAdapter
     public class DBAdapter

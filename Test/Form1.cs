@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using MyFrameWork;  // change this by db name
+using DBGenerator;
 
 namespace Test
 {
@@ -19,7 +19,7 @@ namespace Test
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MyFrameWork.Customer c1 = new Customer();
+            Customer c1 = new Customer();
             //c1.Where.CustomerId.LessThanEqual(3);
             DataSet ds = c1.Select();
             gridTable.DataSource = ds.Tables[0];
@@ -29,20 +29,35 @@ namespace Test
         {
             // clear table
             Customer c1 = new Customer();
-            c1.LastWhere = " where CustomerId < 100";
+			/*
+			c1.Where.ID.Equal(1);
+            c1.LastWhere = " where ID < 100";
             c1.Delete();
+			*/
+			c1.Update.Where.ID.Equal(12).Or.ID.Equal(13).And.Name.Like("abc");
 
             for (int i = 1; i <= 10; i++)
             {
                 Customer c = new Customer();
-                c.CustomerId = i;
+                c.ID = i;
                 c.Name = "Name " + i;
-                c.Addres = "Address " + i;
+                /*
+				c.Address = "Address " + i;
                 c.Int = i * 10;
                 c.BigInt = (i + 2) * 100;
+				*/
                 c.Insert();
             }
             MessageBox.Show("Done");
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Customer cu = new Customer();
+            cu.Name = "update name";
+			
+            cu.Where.ID.Equal(1);
+            cu.UpdateEx();
         }
     }
 }

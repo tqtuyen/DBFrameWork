@@ -12,7 +12,7 @@ namespace CodeGenerator
 {
     class DB
     {
-        public static String mConStr = "Data Source=CBVN-PC037;Initial Catalog=MyFrameWork;Persist Security Info=True;Integrated Security=True";
+        public static String mConStr = "Data Source=CBVN-PC046\\SQLEXPRESS;Initial Catalog=DBGenerator;Persist Security Info=True;Integrated Security=True";
 
         private static SqlConnection getCon()
         {

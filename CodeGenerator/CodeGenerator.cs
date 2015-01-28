@@ -10,7 +10,10 @@ namespace CodeGenerator
 {
     class CodeGenerator
     {
-        string filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+        const int FISRT_TAB = 1;
+		const int SECOND_TAB = 2;
+
+		string filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
         List<string> fields = new List<string>();
         
         // constructor
@@ -22,21 +25,33 @@ namespace CodeGenerator
 
         public void Execute()
         {
-            FileStream fs = File.Create(this.filePath.Replace("file:\\","") + "..\\..\\..\\DBFrameWork.cs");
+			string strSolutionName = "DBFrameWork";
+			string path = this.filePath.Replace("file:\\", "");
+			path = path.Substring(0, path.IndexOf(strSolutionName) + strSolutionName.Length);
+			path += "\\Test\\DBFrameWork.cs";
+			FileStream fs = File.Create(path);
             StreamWriter sw = new StreamWriter(fs, Encoding.UTF8);
             this.AddUsing(sw);
 
             DataTable tables = this.GetTables();
             if (tables.Rows.Count == 0) { return; }
             string tableQualifier = tables.Rows[0]["TABLE_QUALIFIER"].ToString();
-            this.AddNamespace(sw, tableQualifier);
+            
+			this.AddNamespace(sw, tableQualifier);
+
+			this.AddBaseObject(sw);
+
             foreach (DataRow oRow in tables.Rows)
             {
                 string tableName = oRow["TABLE_NAME"].ToString();
-
-                this.AddClass(sw, tableName, 1);
+                
+				this.AddClass(sw, tableName, 1);
 
                 this.AddWhereObject(sw, tableName, 2);
+
+				this.AddCommandObject(sw, tableName, 2);
+
+				this.AddOperatorObject(sw, tableName, 2);
 
                 this.EndClassOrNamespace(sw, 1);
             }
@@ -67,16 +82,151 @@ namespace CodeGenerator
             sw.WriteLine("{");
         }
 
+		private void AddBaseObject(StreamWriter sw)
+		{
+			AddFieldBaseObject(sw);
+			AddTableClassBase(sw);
+			AddWhereObjectBase(sw);
+		}
+
+		private void AddFieldBaseObject(StreamWriter sw)
+		{
+			sw.WriteLine();
+			sw.Write( Tab(1) );
+			sw.WriteLine("public class FieldObjectBase");
+			sw.Write( Tab(1) );
+			sw.WriteLine("{");
+			sw.Write( Tab(2) );
+			sw.WriteLine( "protected string FieldName = string.Empty;" );
+			sw.Write(Tab(2));
+			sw.WriteLine("protected Object FieldValue = null;");
+			sw.Write(Tab(2));
+			sw.WriteLine("protected string CurrentOperator = string.Empty;");
+			sw.Write(Tab(2));
+			sw.WriteLine("protected FieldObjectBase() { }");
+			sw.Write(Tab(2));
+			sw.WriteLine("public FieldObjectBase(string fldName)");
+			sw.Write(Tab(2));
+			sw.WriteLine("{");
+			sw.Write(Tab(3));
+			sw.WriteLine("this.FieldName = fldName;");
+			sw.Write(Tab(2));
+			sw.WriteLine("}");
+
+			string t2 = Tab(1);
+
+			sw.WriteLine();
+			sw.WriteLine(t2 + "\tprotected string ToQueryString()");
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tstring queryString = string.Empty;");
+			sw.WriteLine(t2 + "\t\tif (FieldValue.GetType() == typeof(string))");
+			sw.WriteLine(t2 + "\t\t{");
+			sw.WriteLine(t2 + "\t\t\tstring _fieldValue = FieldValue.ToString().Replace(\"'\", \"''\");");
+			sw.WriteLine(t2 + "\t\t\tstring queryStringFormat = \"({0} {1} \\\"{2}\\\")\";");
+			sw.WriteLine(t2 + "\t\t\tif (CurrentOperator.ToUpper() == \"LIKE\")");
+			sw.WriteLine(t2 + "\t\t\t{");
+			sw.WriteLine(t2 + "\t\t\t\tqueryStringFormat = \"({0} {1} \\\"%{2}%\\\")\";");
+			sw.WriteLine(t2 + "\t\t\t}");
+			sw.WriteLine(t2 + "\t\t\tqueryString = string.Format(queryStringFormat, FieldName, CurrentOperator, _fieldValue);");
+			sw.WriteLine(t2 + "\t\t}");
+			sw.WriteLine(t2 + "\t\telse");
+			sw.WriteLine(t2 + "\t\t{");
+			sw.WriteLine(t2 + "\t\t\tif (CurrentOperator.ToUpper() == \"LIKE\")");
+			sw.WriteLine(t2 + "\t\t\t{");
+			sw.WriteLine(t2 + "\t\t\t\tCurrentOperator = \"<=\";");
+			sw.WriteLine(t2 + "\t\t\t}");
+			sw.WriteLine(t2 + "\t\t\tqueryString = string.Format(\"({0} {1} {2})\", FieldName, CurrentOperator, FieldValue);");
+			sw.WriteLine(t2 + "\t\t}");
+			sw.WriteLine(t2 + "\t\treturn queryString;");
+			sw.WriteLine(t2 + "\t}");
+			sw.WriteLine();
+
+
+			// And Class
+			sw.Write(Tab(1));
+			sw.WriteLine("}");
+		}
+
+		private void AddTableClassBase(StreamWriter sw)
+		{
+			sw.WriteLine();
+			sw.Write(Tab(1));
+			sw.WriteLine("public class TableClassBase");
+			sw.Write(Tab(1));
+			sw.WriteLine("{");
+			sw.Write(Tab(2));
+			sw.WriteLine("protected string _lastWhere = string.Empty;");
+			sw.Write(Tab(2));
+			sw.WriteLine("public string LastWhere");
+			sw.Write(Tab(2));
+			sw.WriteLine("{");
+			sw.Write(Tab(3));
+			sw.WriteLine("protected get { return _lastWhere; }");
+			sw.Write(Tab(3));
+			sw.WriteLine("set");
+			sw.Write(Tab(3));
+			sw.WriteLine("{");
+			sw.Write(Tab(4));
+			sw.WriteLine("if (String.IsNullOrEmpty(_lastWhere))");
+			sw.Write(Tab(4));
+			sw.WriteLine("{");
+			sw.Write(Tab(5));
+			sw.WriteLine("_lastWhere = \" WHERE \";");	
+			sw.Write(Tab(4));
+			sw.WriteLine("}");
+			sw.Write(Tab(4));
+			sw.WriteLine("_lastWhere += value;");
+			sw.Write(Tab(3));
+			sw.WriteLine("}");
+			sw.Write(Tab(2));
+			sw.WriteLine("}");
+			// And Class
+			sw.Write(Tab(1));
+			sw.WriteLine("}");
+		}
+
+		private void AddWhereObjectBase(StreamWriter sw)
+		{
+			sw.WriteLine();
+			sw.Write(Tab(1));
+			sw.WriteLine("public class WhereObjectBase");
+			sw.Write(Tab(1));
+			sw.WriteLine("{");
+			sw.Write(Tab(2));
+			sw.WriteLine("public TableClassBase Parent;");
+			sw.WriteLine();
+			sw.Write(Tab(2));
+			sw.WriteLine("public WhereObjectBase(TableClassBase tblClassBase)");
+			sw.Write(Tab(2));
+			sw.WriteLine("{");
+			sw.Write(Tab(3));
+			sw.WriteLine("this.Parent = tblClassBase;");
+			sw.Write(Tab(2));
+			sw.WriteLine("}");
+			// And Class
+			sw.Write(Tab(1));
+			sw.WriteLine("}");
+		}
+
         private void AddClass(StreamWriter sw, string className, int tabCount)
         {
+			string tab = Tab(tabCount)
+				, tab1 = Tab(tabCount + 1)
+				, tab2 = Tab(tabCount + 2)
+				, tab3 = Tab(tabCount + 3)
+				, tab4 = Tab(tabCount + 4);
+			
+			sw.Write(this.Tab(tabCount));
+            sw.WriteLine(String.Format("public class {0} : TableClassBase", className));
             sw.Write(this.Tab(tabCount));
-            sw.WriteLine("public class " + className);
-            sw.Write(this.Tab(tabCount));
-            sw.WriteLine("{");
-            sw.WriteLine(this.Tab(tabCount) + string.Format("\tpublic static string TableName = \"{0}\";", className));
-            sw.WriteLine(this.Tab(tabCount) + "\tpublic string LastWhere { protected get; set; }");
+			sw.WriteLine("{");
+			sw.Write(tab1);
+			sw.WriteLine(string.Format("public static string TableName = \"{0}\";", className));
+
             // where
             this.AddWhere(sw, className, tabCount + 1);
+			// update
+			this.AddUpdate(sw, className, tabCount + 1);
             // properties
             this.AddProperties(sw, className, tabCount + 1);
             // Fields
@@ -126,6 +276,119 @@ namespace CodeGenerator
             sw.WriteLine();
         }
 
+
+		private void AddUpdate(StreamWriter sw, string tableName, int tab)
+		{
+			string t = this.Tab(tab);
+			string t1 = this.Tab(tab + 1);
+			string t2 = this.Tab(tab + 2);
+			string updateObject = string.Format("{0}UpdateObject", tableName);
+
+			sw.WriteLine(t + "#region Update");
+			sw.WriteLine(t + string.Format("private {0} _updateObject = null;", updateObject));
+			sw.WriteLine(t + string.Format("public {0} Update", updateObject));
+			sw.WriteLine(t + "{");
+			sw.WriteLine(t1 + "get");
+			sw.WriteLine(t1 + "{");
+			sw.WriteLine(t2 + "if (_updateObject == null)");
+			sw.WriteLine(t2 + "{");
+			sw.WriteLine(t2 + string.Format("\t_updateObject = new {0}(Where);", updateObject));
+			sw.WriteLine(t2 + "}");
+			sw.WriteLine(t2 + "return _updateObject;");
+			sw.WriteLine(t1 + "}");
+			sw.WriteLine(t + "}");
+			sw.WriteLine(t + "#endregion");
+			sw.WriteLine();
+		}
+
+		private void AddCommandObject(StreamWriter sw, string prefix, int tab)
+		{
+			AddCommandObjectInner(sw, prefix, tab, "Update");
+			AddCommandObjectInner(sw, prefix, tab, "Insert");
+			AddCommandObjectInner(sw, prefix, tab, "Delete");
+			AddCommandObjectInner(sw, prefix, tab, "Select");
+		}
+
+		private void AddCommandObjectInner(StreamWriter sw, string tableName, int tab, string cmdName)
+		{
+			string t = this.Tab(tab);
+			string t2 = this.Tab(tab + 1);
+			string t3 = this.Tab(tab + 2);
+
+			cmdName = cmdName.First().ToString().ToUpper() + cmdName.Substring(1).ToLower();
+			sw.WriteLine(t + string.Format("#region {0} Command Object", cmdName));
+			sw.WriteLine(t + string.Format("public class {0}{1}Object", tableName, cmdName));
+			sw.WriteLine(t + "{");
+			sw.WriteLine(t2 + string.Format("public readonly {0}WhereObject _whereObject = null;", tableName));
+			sw.WriteLine(t + string.Format("\tprotected {0}{1}Object() ", tableName, cmdName) + "{}");
+			sw.WriteLine(t + string.Format("\tpublic {0}{1}Object({0}WhereObject whereObj) ", tableName, cmdName) + "{ this._whereObject = whereObj; }");
+			sw.WriteLine();
+			sw.WriteLine(t2 + string.Format("public {0}WhereObject Where", tableName));
+			sw.WriteLine(t2 + "{");
+			sw.WriteLine(t3 + "get { return this._whereObject; }");
+			sw.WriteLine(t2 + "}");
+			sw.WriteLine(t + "}");
+			sw.WriteLine(t + "#endregion");
+			sw.WriteLine();
+		}
+
+		private void AddOperatorObject(StreamWriter sw, string prefix, int tab)
+		{
+			string t = this.Tab(tab);
+			string t2 = this.Tab(tab + 1);
+			string t3 = this.Tab(tab + 2);
+			string t4 = this.Tab(tab + 3);
+
+			sw.WriteLine(t + "#region Operator Object");
+			sw.WriteLine(t + string.Format("public class {0}OperatorObject", prefix));
+			sw.WriteLine(t + "{");
+			sw.WriteLine(t2 + string.Format("private {0}WhereObject _whereObject = null;", prefix));
+			sw.WriteLine(t2 + string.Format("protected {0}OperatorObject() ", prefix) + "{}");
+			sw.WriteLine(t2 + string.Format("public {0}OperatorObject({0}WhereObject whereObj) ", prefix) + "{ this._whereObject = whereObj; }");
+			sw.WriteLine();
+			sw.WriteLine(t2 + string.Format("public {0}WhereObject Where", prefix));
+			sw.WriteLine(t2 + "{");
+			sw.WriteLine(t3 + "get { return this._whereObject; }");
+			sw.WriteLine(t2 + "}");
+			// OR
+			AddOperatorObjectInner(sw, prefix, tab + 1, "OR");
+			// AND
+			AddOperatorObjectInner(sw, prefix, tab + 1, "AND");
+
+			sw.WriteLine(t + "}");
+			sw.WriteLine(t + "#endregion");
+			sw.WriteLine();
+		}
+
+		private void AddOperatorObjectInner(StreamWriter sw, string tableName, int tab, String andOr)
+		{
+			if (String.IsNullOrEmpty(andOr.Trim()))
+			{
+				return;
+			}
+			string t2 = Tab(tab)
+				, t3 = Tab(tab + 1)
+				, t4 = Tab(tab + 2);
+			string andOrFunc = andOr.Trim().ToLower();
+			andOrFunc = andOrFunc.First().ToString().ToUpper() + andOrFunc.Substring(1);
+			sw.WriteLine("");
+			sw.WriteLine(string.Format("{0}public {1}WhereObject {2}", t2, tableName, andOrFunc));
+			sw.Write(t2);
+			sw.WriteLine("{");
+			sw.Write(t3);
+			sw.WriteLine("get");
+			sw.Write(t3);
+			sw.WriteLine("{");
+			sw.Write(t4);
+			sw.WriteLine("this._whereObject.Parent.LastWhere = \" " + andOr.Trim() + " \";");
+			sw.Write(t4);
+			sw.WriteLine("return this._whereObject;");
+			sw.Write(t3);
+			sw.WriteLine("}");
+			sw.Write(t2);
+			sw.WriteLine("}");
+		}
+
         private void AddMethods(StreamWriter sw, int tabCount)
         {
             sw.Write(this.Tab(tabCount));
@@ -133,7 +396,7 @@ namespace CodeGenerator
             sw.Write(this.Tab(tabCount));
             sw.WriteLine("public void Insert() { DBAdapter.Insert(this); }");
             sw.Write(this.Tab(tabCount));
-            sw.WriteLine("public void Update() { DBAdapter.Update(this); }");
+            sw.WriteLine("public void UpdateEx() { DBAdapter.Update(this); }");
             sw.Write(this.Tab(tabCount));
             sw.WriteLine("public void Delete() { DBAdapter.Delete(this); }");
             sw.Write(this.Tab(tabCount));
@@ -177,11 +440,11 @@ namespace CodeGenerator
             string t2 = this.Tab(tab + 1);
 
             sw.WriteLine(t + "#region Where Object");
-            sw.WriteLine(t + string.Format("public class {0}WhereObject", prefix));
+			sw.WriteLine(t + string.Format("public class {0}WhereObject : WhereObjectBase", prefix));
             sw.WriteLine(t + "{");
-            sw.WriteLine(t + string.Format("\tpublic readonly {0} Parent = null;", prefix));
-            sw.WriteLine(t + string.Format("\tprotected {0}WhereObject()", prefix) + "{ }");
-            sw.WriteLine(t + string.Format("\tpublic {0}WhereObject({0} parent)", prefix) + "{ this.Parent = parent; }");
+            //sw.WriteLine(t + string.Format("\tpublic readonly {0} Parent = null;", prefix));
+            //sw.WriteLine(t + string.Format("\tprotected {0}WhereObject()", prefix) + "{ }");
+            sw.WriteLine(t + string.Format("\tpublic {0}WhereObject({0} parent) : base(parent)", prefix) + " { }");
             sw.WriteLine();
             
             foreach (string field in fields)
@@ -210,33 +473,75 @@ namespace CodeGenerator
             sw.WriteLine(t + "}");
             sw.WriteLine(t + "#endregion");
             sw.WriteLine();
-
         }
 
         private void AddFieldObject(StreamWriter sw, string fieldName, string parent, int tab)
         {
             string t2 = this.Tab(tab);
-            sw.WriteLine(t2 + string.Format("public class {0}Object", fieldName));
+            sw.WriteLine(t2 + string.Format("public class {0}Object : FieldObjectBase", fieldName));
             sw.WriteLine(t2 + "{");
+		/*	
+			sw.WriteLine(t2 + string.Format("\tprivate string FieldName = \"{0}\";", fieldName));
+			sw.WriteLine(t2 + "\tprivate Object FieldValue;");
+			sw.WriteLine(t2 + "\tprivate string CurrentOperator = string.Empty;");
+			*/
+			sw.WriteLine(t2 + string.Format("\t{0}OperatorObject _operator = null;", parent));
+			sw.WriteLine();
+
             sw.WriteLine(t2 + string.Format("\tpublic readonly {0}WhereObject Parent = null;", parent));
             sw.WriteLine(t2 + string.Format("\tprotected {0}Object() ", fieldName) + "{ }");
-            sw.WriteLine(t2 + string.Format("\tpublic {0}Object({1}WhereObject parent) ", fieldName, parent) + "{ this.Parent = parent; }");
-            // Equal
-            sw.WriteLine(t2 + "\tpublic string Equal(Object value)");
-            sw.WriteLine(t2 + "\t{");
-            sw.WriteLine(t2 + "\t\tstring lastWhere = \"\";");
-            sw.WriteLine(t2 + "\t\tif (value.GetType() == typeof(string))");
-            sw.WriteLine(t2 + "\t\t{");
-            sw.WriteLine(t2 + string.Format("\t\t\tlastWhere = \" where {0} = '\" + value.ToString().Replace(\"'\", \"''\") + \"'\";", fieldName));
-            sw.WriteLine(t2 + "\t\t}");
-            sw.WriteLine(t2 + "\t\telse");
-            sw.WriteLine(t2 + "\t\t{");
-            sw.WriteLine(t2 + string.Format("\t\t\tlastWhere = \" where {0} = \" + value;", fieldName));
-            sw.WriteLine(t2 + "\t\t}");
-            sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = lastWhere;");
-            sw.WriteLine(t2 + "\t\treturn lastWhere;");
-            sw.WriteLine(t2 + "\t}"); 
+			sw.WriteLine(t2 + string.Format("\tpublic {0}Object({1}WhereObject parent): base(\"{0}\") ", fieldName, parent));
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tthis.Parent = parent;");
+			sw.WriteLine(t2 + string.Format("\t\tthis._operator = new {0}OperatorObject(this.Parent);", parent));
+			sw.WriteLine(t2 + "\t}");
+			/*
+			sw.WriteLine();
+			sw.WriteLine(t2 + "\tprivate string ToQueryString()");
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tstring queryString = string.Empty;");
+			sw.WriteLine(t2 + "\t\tif (FieldValue.GetType() == typeof(string))");
+			sw.WriteLine(t2 + "\t\t{");
+			sw.WriteLine(t2 + "\t\t\tstring _fieldValue = FieldValue.ToString().Replace(\"'\", \"''\");");
+			sw.WriteLine(t2 + "\t\t\tstring queryStringFormat = \"({0} {1} \\\"{2}\\\")\";");
+			sw.WriteLine(t2 + "\t\t\tif (CurrentOperator.ToUpper() == \"LIKE\")");
+			sw.WriteLine(t2 + "\t\t\t{");
+			sw.WriteLine(t2 + "\t\t\t\tqueryStringFormat = \"({0} {1} \\\"%{2}%\\\")\";");
+			sw.WriteLine(t2 + "\t\t\t}");
+			sw.WriteLine(t2 + "\t\t\tqueryString = string.Format(queryStringFormat, FieldName, CurrentOperator, _fieldValue);");
+			sw.WriteLine(t2 + "\t\t}");
+			sw.WriteLine(t2 + "\t\telse");
+			sw.WriteLine(t2 + "\t\t{");
+			sw.WriteLine(t2 + "\t\t\tif (CurrentOperator.ToUpper() == \"LIKE\")");
+			sw.WriteLine(t2 + "\t\t\t{");
+			sw.WriteLine(t2 + "\t\t\t\tCurrentOperator = \"<=\";");
+			sw.WriteLine(t2 + "\t\t\t}");
+			sw.WriteLine(t2 + "\t\t\tqueryString = string.Format(\"({0} {1} {2})\", FieldName, CurrentOperator, FieldValue);");
+			sw.WriteLine(t2 + "\t\t}");
+			sw.WriteLine(t2 + "\t\treturn queryString;");
+			sw.WriteLine(t2 + "\t}");
+			sw.WriteLine();
+			*/
+
+            // Equal			
+			sw.WriteLine(t2 + "\tpublic CustomerOperatorObject Equal(Object value)");
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tFieldValue = value;");
+			sw.WriteLine(t2 + "\t\tCurrentOperator = \"=\";");
+			sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = ToQueryString();");
+			sw.WriteLine(t2 + "\t\treturn _operator;");
+			sw.WriteLine(t2 + "\t}");
+
             // LessThan
+			sw.WriteLine();
+			sw.WriteLine(t2 + "\tpublic CustomerOperatorObject LessThan(Object value)");
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tFieldValue = value;");
+			sw.WriteLine(t2 + "\t\tCurrentOperator = \"<\";");
+			sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = ToQueryString();");
+			sw.WriteLine(t2 + "\t\treturn _operator;");
+			sw.WriteLine(t2 + "\t}");
+			/*
             sw.WriteLine(t2 + "\tpublic string LessThan(Object value)");
             sw.WriteLine(t2 + "\t{");
             sw.WriteLine(t2 + "\t\tstring lastWhere = \"\";");
@@ -250,8 +555,18 @@ namespace CodeGenerator
             sw.WriteLine(t2 + "\t\t}");
             sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = lastWhere;");
             sw.WriteLine(t2 + "\t\treturn lastWhere;");
-            sw.WriteLine(t2 + "\t}");  
-            // LessThanEqual
+            sw.WriteLine(t2 + "\t}");
+  			*/
+			// LessThanEqual
+			sw.WriteLine();
+			sw.WriteLine(t2 + "\tpublic CustomerOperatorObject LessThanEqual(Object value)");
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tFieldValue = value;");
+			sw.WriteLine(t2 + "\t\tCurrentOperator = \"<=\";");
+			sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = ToQueryString();");
+			sw.WriteLine(t2 + "\t\treturn _operator;");
+			sw.WriteLine(t2 + "\t}");
+			/*
             sw.WriteLine(t2 + "\tpublic string LessThanEqual(Object value)");
             sw.WriteLine(t2 + "\t{");
             sw.WriteLine(t2 + "\t\tstring lastWhere = \"\";");
@@ -265,8 +580,18 @@ namespace CodeGenerator
             sw.WriteLine(t2 + "\t\t}");
             sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = lastWhere;");
             sw.WriteLine(t2 + "\t\treturn lastWhere;");
-            sw.WriteLine(t2 + "\t}");  
+            sw.WriteLine(t2 + "\t}");
+  			*/
             // GreaterThan
+			sw.WriteLine();
+			sw.WriteLine(t2 + "\tpublic CustomerOperatorObject GreaterThan(Object value)");
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tFieldValue = value;");
+			sw.WriteLine(t2 + "\t\tCurrentOperator = \">\";");
+			sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = ToQueryString();");
+			sw.WriteLine(t2 + "\t\treturn _operator;");
+			sw.WriteLine(t2 + "\t}");
+			/*
             sw.WriteLine(t2 + "\tpublic string GreaterThan(Object value)");
             sw.WriteLine(t2 + "\t{");
             sw.WriteLine(t2 + "\t\tstring lastWhere = \"\";");
@@ -280,8 +605,18 @@ namespace CodeGenerator
             sw.WriteLine(t2 + "\t\t}");
             sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = lastWhere;");
             sw.WriteLine(t2 + "\t\treturn lastWhere;");
-            sw.WriteLine(t2 + "\t}");  
-            // GreaterThanEqual
+            sw.WriteLine(t2 + "\t}");
+			 * */
+			// GreaterThanEqual
+			sw.WriteLine();
+			sw.WriteLine(t2 + "\tpublic CustomerOperatorObject GreaterThanEqual(Object value)");
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tFieldValue = value;");
+			sw.WriteLine(t2 + "\t\tCurrentOperator = \">=\";");
+			sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = ToQueryString();");
+			sw.WriteLine(t2 + "\t\treturn _operator;");
+			sw.WriteLine(t2 + "\t}");
+			/*
             sw.WriteLine(t2 + "\tpublic string GreaterThanEqual(Object value)");
             sw.WriteLine(t2 + "\t{");
             sw.WriteLine(t2 + "\t\tstring lastWhere = \"\";");
@@ -295,8 +630,18 @@ namespace CodeGenerator
             sw.WriteLine(t2 + "\t\t}");
             sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = lastWhere;");
             sw.WriteLine(t2 + "\t\treturn lastWhere;");
-            sw.WriteLine(t2 + "\t}");  
-            // Like
+            sw.WriteLine(t2 + "\t}");
+			 */
+			// Like
+			sw.WriteLine();
+			sw.WriteLine(t2 + "\tpublic CustomerOperatorObject Like(Object value)");
+			sw.WriteLine(t2 + "\t{");
+			sw.WriteLine(t2 + "\t\tFieldValue = value;");
+			sw.WriteLine(t2 + "\t\tCurrentOperator = \"LIKE\";");
+			sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = ToQueryString();");
+			sw.WriteLine(t2 + "\t\treturn _operator;");
+			sw.WriteLine(t2 + "\t}");
+/*
             sw.WriteLine(t2 + "\tpublic string Like(Object value)");
             sw.WriteLine(t2 + "\t{");
             sw.WriteLine(t2 + "\t\tstring lastWhere = \"\";");
@@ -310,7 +655,8 @@ namespace CodeGenerator
             sw.WriteLine(t2 + "\t\t}");
             sw.WriteLine(t2 + "\t\tthis.Parent.Parent.LastWhere = lastWhere;");
             sw.WriteLine(t2 + "\t\treturn lastWhere;");
-            sw.WriteLine(t2 + "\t}");  
+            sw.WriteLine(t2 + "\t}"); 
+ */
             // End Class
             sw.WriteLine(t2 + "}");
         }
@@ -321,7 +667,7 @@ namespace CodeGenerator
     #region DBAdapter
     public class DBAdapter
     {
-        public static string mConStr = ""Data Source=CBVN-PC037;Initial Catalog=MyFrameWork;Persist Security Info=True;Integrated Security=True"";
+        public static string mConStr = ""Data Source=CBVN-PC046\\SQLEXPRESS;Initial Catalog=DBGenerator;Persist Security Info=True;Integrated Security=True"";
 
         public static void Insert(Object obj)
         {
@@ -344,7 +690,7 @@ namespace CodeGenerator
             string strField = String.Join("", "", field2Insert.ToArray());
             string strValue = String.Join("", "", fieldsVal2Insert.ToArray());
 
-            string strInsertFormat = ""Insert Into {0} ({1}) Values ({2})"";
+            string strInsertFormat = ""INSERT INTO {0} ({1}) VALUES ({2})"";
             string sql = string.Format(strInsertFormat, strTableName, strField, strValue);
             DBAdapter.ExecQuery(sql);
         }
@@ -365,13 +711,14 @@ namespace CodeGenerator
             {
                 if (fields.Contains(pi.Name))
                 {
-                    string value = DBAdapter.GetValue(pi.GetValue(obj, null));
+                    string value = DBAdapter.GetValue(pi.GetValue(obj, null), null);
+                    if (value == null) { continue; }
                     if (value.Length == 0) { value = ""''""; }
                     updateSets.Add(string.Format(""{0} = {1}"", pi.Name, value));
                 }
             }
 
-            string strSqlFormat = ""Update {0} Set {1} {2}"";
+            string strSqlFormat = ""UPDATE {0} SET {1} {2}"";
             string sql = string.Format(strSqlFormat, strTableName, String.Join("", "", updateSets.ToArray()), strWhere);
             DBAdapter.ExecQuery(sql);
         }
@@ -385,7 +732,7 @@ namespace CodeGenerator
             {
                 throw new ArgumentNullException(""ArgumentNullException: Where"");
             }
-            string sql = string.Format(""Delete From {0} {1}"", strTableName, strWhere);
+            string sql = string.Format(""DELETE FROM {0} {1}"", strTableName, strWhere);
             DBAdapter.ExecQuery(sql);
         }
 
@@ -399,6 +746,7 @@ namespace CodeGenerator
             return DBAdapter.GetDataSet(sql);
         }
 
+        // return empty if @param value is null
         private static String GetValue(Object value)
         {
             String ret = """";
@@ -412,6 +760,13 @@ namespace CodeGenerator
                 ret = value.ToString();
             }
             return ret;
+        }
+
+        // return a defaultValue if @param value is null
+        private static String GetValue(Object value, String defaultValue)
+        {
+            if (value == null) { return defaultValue; }
+            return GetValue(value);
         }
 
         private static SqlConnection getCon()
