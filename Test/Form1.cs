@@ -28,26 +28,32 @@ namespace Test
         private void button2_Click(object sender, EventArgs e)
         {
             // clear table
-            Customer c1 = new Customer();
-			/*
-			c1.Where.ID.Equal(1);
-            c1.LastWhere = " where ID < 100";
-            c1.Delete();
-			*/
-			c1.Update.Where.ID.Equal(12).Or.ID.Equal(13).And.Name.Like("abc");
+			Customer c1 = new Customer();
+			//c1.Where.ID.Equal(1);
+			//c1.LastWhere = " where ID < 100";
+			//c1.Where.ID.GreaterThan(0);
+			c1.Delete.Where.ID.GreaterThan(0);
+			c1.DeleteEx();
+			//c1.Update.Where.ID.Equal(12).Or.ID.Equal(13).And.Name.Like("abc");
 
-            for (int i = 1; i <= 10; i++)
-            {
-                Customer c = new Customer();
-                c.ID = i;
-                c.Name = "Name " + i;
-                /*
+			for (int i = 1; i <= 10; i++)
+			{
+				Customer c = new Customer();
+				c.ID = i;
+				c.Name = "Name " + i;
+				/*
 				c.Address = "Address " + i;
-                c.Int = i * 10;
-                c.BigInt = (i + 2) * 100;
+				c.Int = i * 10;
+				c.BigInt = (i + 2) * 100;
 				*/
-                c.Insert();
-            }
+				c.Save();
+			}
+			/*
+			Events evt = new DBGenerator.Events();
+			evt.EventLocation = "HCMC";
+			evt.EventName = "TEST";
+			Int32 lastId = evt.Save();
+			*/
             MessageBox.Show("Done");
         }
 
@@ -56,8 +62,8 @@ namespace Test
             Customer cu = new Customer();
             cu.Name = "update name";
 			
-            cu.Where.ID.Equal(1);
-            cu.UpdateEx();
+            cu.Update.Where.ID.Equal(1).Or.Name.Like("ame 4").Or.Name.Equal("Name 6");
+			cu.Save();
         }
     }
 }
